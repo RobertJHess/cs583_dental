@@ -16,7 +16,7 @@ def download_dataset(api_key="szzYe8PLeSgGZR4e6h7C", download_location="data/opg
     return dataset
 
 def train_model(
-    data_yaml="opg.yaml",
+    data_yaml="data/opg/data.yaml",
     model_name="yolov8s-seg.pt",
     epochs=25,
     image_size=512,
@@ -62,7 +62,7 @@ def main():
     parser.add_argument(
         "--data",
         type=str,
-        default="opg.yaml",
+        default="data/opg/data.yaml",
         help="Path to dataset YAML file"
     )
     parser.add_argument(
