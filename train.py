@@ -1,8 +1,4 @@
 #!/usr/bin/env python3
-"""
-Training script for YOLOv8 dental X-ray segmentation model.
-Downloads the dataset from Roboflow and trains the model.
-"""
 
 import argparse
 import os
@@ -11,7 +7,6 @@ from ultralytics import YOLO
 
 
 def download_dataset(api_key="szzYe8PLeSgGZR4e6h7C", download_location="data/opg"):
-    """Download the dental X-ray dataset from Roboflow."""
     print("Downloading dataset from Roboflow...")
     rf = Roboflow(api_key=api_key)
     project = rf.workspace("detect-inpnn").project("opg-detect")
@@ -20,7 +15,6 @@ def download_dataset(api_key="szzYe8PLeSgGZR4e6h7C", download_location="data/opg
     print(f"Dataset downloaded to: {dataset.location}")
     return dataset
 
-
 def train_model(
     data_yaml="opg.yaml",
     model_name="yolov8s-seg.pt",
@@ -28,8 +22,6 @@ def train_model(
     image_size=512,
     batch_size=2,
     device="cpu",
-    project="runs/segment",
-    name="opg_dental"
 ):
     print(f"Loading model: {model_name}")
     model = YOLO(model_name)
@@ -40,13 +32,6 @@ def train_model(
         imgsz=image_size,
         batch=batch_size,
         device=device,
-        project=project,
-        name=name,
-        patience=50,
-        save=True,
-        save_period=10,
-        cache=False,
-        plots=True
     )
     print("Training completed!")
     print(f"Best model saved at: {model.trainer.best}")
@@ -84,7 +69,7 @@ def main():
         "--model",
         type=str,
         default="yolov8s-seg.pt",
-        help="YOLOv8 model to use (yolov8n-seg.pt, yolov8s-seg.pt, yolov8m-seg.pt, etc.)"
+        help="YOLOv8 model to use."
     )
     parser.add_argument(
         "--epochs",
@@ -108,37 +93,23 @@ def main():
         "--device",
         type=str,
         default="cpu",
-        help="CUDA device (0, 1, 2, etc.) or 'cpu'"
-    )
-    parser.add_argument(
-        "--project",
-        type=str,
-        default="runs/segment",
-        help="Project directory"
-    )
-    parser.add_argument(
-        "--name",
-        type=str,
-        default="opg_dental",
-        help="Experiment name"
+        help="CUDA device 0 or 'cpu'"
     )
     args = parser.parse_args()
     if args.download_dataset:
         download_dataset(api_key=args.api_key, download_location=args.download_location)
-    results = train_model(
+    train_model(
         data_yaml=args.data,
         model_name=args.model,
         epochs=args.epochs,
         image_size=args.image_size,
         batch_size=args.batch,
-        device=args.device,
-        project=args.project,
-        name=args.name
+        device=args.device
     )
     print("\n" + "="*50)
     print("Training Summary")
     print("="*50)
-    print(f"Results directory: {args.project}/{args.name}")
+    print("Results directory: runs/segment/")
 
 
 if __name__ == "__main__":
