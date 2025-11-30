@@ -10,12 +10,13 @@ from roboflow import Roboflow
 from ultralytics import YOLO
 
 
-def download_dataset(api_key="szzYe8PLeSgGZR4e6h7C"):
+def download_dataset(api_key="szzYe8PLeSgGZR4e6h7C", download_location="data/opg"):
     """Download the dental X-ray dataset from Roboflow."""
     print("Downloading dataset from Roboflow...")
     rf = Roboflow(api_key=api_key)
     project = rf.workspace("detect-inpnn").project("opg-detect")
-    dataset = project.version(1).download("yolov8")
+    dataset = project.version(1).download("yolov8", location=download_location)
+    print(dataset)
     print(f"Dataset downloaded to: {dataset.location}")
     return dataset
 
@@ -71,6 +72,12 @@ def main():
         help="Roboflow API key"
     )
     parser.add_argument(
+        "--download_location",
+        type=str,
+        default="data/opg",
+        help="Dataset download location"
+    )
+    parser.add_argument(
         "--data",
         type=str,
         default="opg.yaml",
@@ -123,7 +130,7 @@ def main():
 
     # Download dataset if requested
     if args.download_dataset:
-        download_dataset(api_key=args.api_key)
+        download_dataset(api_key=args.api_key, download_location=args.download_location)
 
     # Train model
     results = train_model(
