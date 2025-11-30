@@ -2,6 +2,7 @@
 """
 Prediction script for YOLOv8 dental X-ray segmentation model.
 Runs inference on dental X-ray images and saves results.
+Used to validate training before using the Rust inference.
 """
 
 import argparse
@@ -15,7 +16,7 @@ def predict(
     source,
     conf=0.25,
     iou=0.7,
-    imgsz=640,
+    image_size=512,
     save=True,
     save_txt=False,
     save_conf=False,
@@ -27,35 +28,14 @@ def predict(
     name="opg_predictions",
     visualize=False
 ):
-    """
-    Run prediction on dental X-ray images.
-
-    Args:
-        model_path: Path to trained model weights
-        source: Image path, directory, or video
-        conf: Confidence threshold
-        iou: IoU threshold for NMS
-        imgsz: Input image size
-        save: Save prediction results
-        save_txt: Save results as text files
-        save_conf: Save confidence scores in text files
-        save_crop: Save cropped predictions
-        show_labels: Show labels on predictions
-        show_conf: Show confidence scores on predictions
-        show_boxes: Show bounding boxes
-        project: Project directory
-        name: Experiment name
-        visualize: Visualize model features
-    """
     print(f"Loading model from: {model_path}")
     model = YOLO(model_path)
-
     print(f"Running prediction on: {source}")
     results = model.predict(
         source=source,
         conf=conf,
         iou=iou,
-        imgsz=imgsz,
+        imgsz=image_size,
         save=save,
         save_txt=save_txt,
         save_conf=save_conf,
@@ -68,21 +48,15 @@ def predict(
         visualize=visualize,
         stream=False
     )
-
     print(f"\nPrediction completed!")
     print(f"Results saved to: {project}/{name}")
-
-    # Print detection summary
     print("\n" + "="*50)
     print("Detection Summary")
     print("="*50)
-
-    for idx, result in enumerate(results):
+    for index, result in enumerate(results):
         if result.masks is not None:
             num_detections = len(result.masks)
-            print(f"Image {idx + 1}: {num_detections} objects detected")
-
-            # Print detected classes
+            print(f"Image {index + 1}: {num_detections} objects detected")
             if result.boxes is not None and len(result.boxes) > 0:
                 classes = result.boxes.cls.cpu().numpy()
                 names = result.names
@@ -90,12 +64,10 @@ def predict(
                 for cls in classes:
                     class_name = names[int(cls)]
                     detected_classes[class_name] = detected_classes.get(class_name, 0) + 1
-
                 for class_name, count in detected_classes.items():
                     print(f"  - {class_name}: {count}")
         else:
-            print(f"Image {idx + 1}: No objects detected")
-
+            print(f"Image {index + 1}: No objects detected")
     return results
 
 
@@ -113,7 +85,7 @@ def main():
         "--source",
         type=str,
         required=True,
-        help="Path to image, directory, video, or 0 for webcam"
+        help="Path to image, directory"
     )
     parser.add_argument(
         "--conf",
@@ -128,15 +100,15 @@ def main():
         help="IoU threshold for NMS (0.0-1.0)"
     )
     parser.add_argument(
-        "--imgsz",
+        "--image-size",
         type=int,
-        default=640,
+        default=512,
         help="Input image size"
     )
     parser.add_argument(
         "--no-save",
         action="store_true",
-        help="Don't save prediction results"
+        help="Do not save prediction results"
     )
     parser.add_argument(
         "--save-txt",
@@ -185,22 +157,17 @@ def main():
         action="store_true",
         help="Visualize model features"
     )
-
     args = parser.parse_args()
-
-    # Check if model exists
     if not os.path.exists(args.model):
         print(f"Error: Model not found at {args.model}")
         print("Please provide a valid path to trained model weights.")
         return
-
-    # Run prediction
     results = predict(
         model_path=args.model,
         source=args.source,
         conf=args.conf,
         iou=args.iou,
-        imgsz=args.imgsz,
+        image_size=args.image_size,
         save=not args.no_save,
         save_txt=args.save_txt,
         save_conf=args.save_conf,
@@ -216,3 +183,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+    
