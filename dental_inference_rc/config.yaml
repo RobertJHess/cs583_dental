@@ -1,0 +1,5 @@
+# config.yaml
+# model_path: "/absolute/or/relative/path/to/model.onnx"
+model_path: "C:/School/Fall2025/project/runs-20251130T043758Z-1-001/runs/segment/train14/weights/best.onnx"
+device: "gpu"   # either "cpu" or "gpu"
+output_dir: "./results" # optional; where inference results are written (will be created)
