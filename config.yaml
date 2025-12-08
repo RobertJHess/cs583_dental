@@ -1,6 +1,6 @@
 model_path: "C:/School/Fall2025/project/runs-20251130T043758Z-1-001/runs/segment/train14/weights/best.onnx"
 device: "gpu"   # either "cpu" or "gpu"
-output_dir: "./results" # optional; where inference results are written (will be created)
+output_dir: "./results_python" # optional; where inference results are written (will be created)
 conf_threshold: 0.25  # confidence threshold for detections
 iou_threshold: 0.45   # IOU threshold for NMS
 
